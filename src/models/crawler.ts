@@ -1,0 +1,63 @@
+import { DataTypes, Model } from "sequelize";
+import sequelize from "../database/sequelize";
+
+export interface CrawlerAttributes {
+  crawlerId?: number;
+
+  storeId: number;
+  url: string;
+  delayHours: number;
+  lastExecution: Date;
+}
+
+class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
+  public crawlerId!: number;
+
+  public storeId!: number;
+  public url!: string;
+  public delayHours!: number;
+  public lastExecution!: Date;
+}
+
+Crawler.init(
+  {
+    crawlerId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      field: "crawler_id",
+    },
+    storeId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "store_id",
+      references: {
+        model: "stores",
+        key: "store_id",
+      },
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "url",
+    },
+    delayHours: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 24,
+      field: "delay_hours",
+    },
+    lastExecution: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "last_execution",
+    },
+  },
+  {
+    sequelize,
+    tableName: "crawlers",
+    timestamps: false,
+  }
+);
+
+export default Crawler;
