@@ -32,9 +32,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Schedule the crawlers to run at the specified time
-// cron.schedule(`0 * * * *`, () => {
-// runScheduledCrawlers();
+runScheduledCrawlers();
+// Schedule the crawlers to run at the start of every hour
 cron.schedule(`0 * * * *`, () => {
   runScheduledCrawlers();
 });

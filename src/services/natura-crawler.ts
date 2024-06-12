@@ -29,8 +29,10 @@ function mapProductAttributes(product: any, category: string): CrawledProduct {
 }
 
 const naturaCrawler = async (): Promise<CrawledProduct[]> => {
+  console.log("naturaCrawler");
   let allProducts: CrawledProduct[] = [];
   for (const category of CATEGORIES) {
+    console.log("category:", category);
     let start = 0;
     let fetchMore = true;
     let categoryProducts: CrawledProduct[] = [];
@@ -59,6 +61,12 @@ const naturaCrawler = async (): Promise<CrawledProduct[]> => {
         }
       );
 
+      if (!response.ok) {
+        console.error(`Error: ${response.status} - ${response.statusText}`);
+        fetchMore = false;
+        continue;
+      }
+
       const responseData = await response.json();
 
       if (responseData.products && responseData.products.length > 0) {
@@ -77,6 +85,7 @@ const naturaCrawler = async (): Promise<CrawledProduct[]> => {
     allProducts.push(...categoryProducts);
   }
 
+  console.log("products returned:", allProducts);
   return allProducts;
 };
 

@@ -65,9 +65,11 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
     let recordsCreated = 0;
     switch (storeDetected.storeName) {
       case "Natura":
+        console.log("Starting Natura crawler...");
         crawledProducts = await naturaCrawler();
         break;
       case "Amazon":
+        console.log("Starting Amazon crawler...");
         crawledProducts = await amazonCrawler(crawlerDetected);
         break;
       default:

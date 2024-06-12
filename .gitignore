@@ -1,4 +1,5 @@
-.env
 /dev/
+/dist/
 /docs/
 /node_modules
+/.env
