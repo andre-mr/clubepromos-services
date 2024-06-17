@@ -1,13 +1,13 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import crawlersRoute from "./routes/crawlers-route";
 import productsRoute from "./routes/products-route";
 import priceHistoryRoute from "./routes/price-history-route";
 import { authMiddleware } from "./middlewares/auth-middleware";
 import cron from "node-cron";
 import { runScheduledCrawlers } from "./services/scheduler";
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.API_PORT || 3000;
