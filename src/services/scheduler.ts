@@ -1,4 +1,4 @@
-import { getCrawlers } from "../database/crawler-dao";
+import { getCrawlers, updateCrawler } from "../database/crawler-dao";
 import { runCrawler } from "../controllers/crawler-controller";
 import Crawler from "../models/crawler";
 
@@ -14,6 +14,14 @@ export const runScheduledCrawlers = async () => {
       try {
         const crawlerResult = await runCrawler(crawler);
         if (crawlerResult) {
+          updateCrawler({
+            crawlerId: crawlerResult.crawlerId,
+            updateValues: {
+              lastExecution: crawlerResult.lastExecution,
+              lastPrices: crawlerResult.lastPrices,
+              lastProducts: crawlerResult.lastProducts,
+            },
+          });
           console.log(`Crawler ${crawler.crawlerId} finished`);
         } else {
           console.log(`Crawler ${crawler.crawlerId} didn't run`);

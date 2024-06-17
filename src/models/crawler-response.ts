@@ -4,4 +4,6 @@ export interface CrawlerResponse {
   url: string | null;
   delayHours: number;
   lastExecution: Date | null;
+  lastPrices: number | null;
+  lastProducts: number | null;
 }

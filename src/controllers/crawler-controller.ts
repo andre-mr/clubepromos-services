@@ -43,8 +43,17 @@ export const handleRunCrawler = async (req: Request, res: Response) => {
   if (isCrawlerAlreadyRunning) {
     return res.status(400).json({ message: "Crawler is not ready to run" });
   }
-  runCrawler(crawlerDetected, storeDetected).then(() => {
-    updateCrawler(crawlerDetected.crawlerId, { lastExecution: new Date() });
+  runCrawler(crawlerDetected, storeDetected).then((response) => {
+    if (response) {
+      updateCrawler({
+        crawlerId: crawlerDetected.crawlerId,
+        updateValues: {
+          lastExecution: new Date(),
+          lastPrices: crawlerDetected.lastPrices,
+          lastProducts: crawlerDetected.lastProducts,
+        },
+      });
+    }
   });
 
   return res
@@ -74,7 +83,7 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
         break;
       default:
         console.error("Store not supported");
-        return null;
+        return false;
     }
 
     const nowDate = new Date();
@@ -128,8 +137,13 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
     console.log(`${recordsCreated} price records created!`);
     console.log(`${newProducts} new products created!`);
 
-    return true;
+    crawlerDetected.lastExecution = new Date();
+    crawlerDetected.lastProducts = newProducts;
+    crawlerDetected.lastPrices = recordsCreated;
+
+    return crawlerDetected;
   } catch (error: unknown) {
+    console.log("error");
     return false;
   }
 };
@@ -199,7 +213,7 @@ export const handleUpdateCrawler = async (req: Request, res: Response) => {
   const updateValues = req.body;
 
   try {
-    const updatedRows = await updateCrawler(crawlerId, updateValues);
+    const updatedRows = await updateCrawler({ crawlerId, updateValues });
     if (updatedRows === 0) {
       return res.status(404).json({ message: "Crawler not found or no changes made" });
     }

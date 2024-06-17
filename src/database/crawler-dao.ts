@@ -9,6 +9,8 @@ const transformCrawlerToResponse = (crawler: Crawler): CrawlerResponse => {
     url: crawler.url,
     delayHours: crawler.delayHours,
     lastExecution: crawler.lastExecution,
+    lastPrices: crawler.lastPrices,
+    lastProducts: crawler.lastProducts,
   };
 };
 
@@ -57,7 +59,7 @@ export const getCrawlerByIdWithStoreName = async (crawlerId: number) => {
   return transformCrawlerToResponse(crawler);
 };
 
-export const createCrawler = async ({ storeId, url, delayHours, lastExecution }: Crawler) => {
+export const createCrawler = async ({ storeId, url, delayHours, lastExecution, lastPrices, lastProducts }: Crawler) => {
   try {
     const [crawler, created] = await Crawler.findOrCreate({
       where: { url },
@@ -66,6 +68,8 @@ export const createCrawler = async ({ storeId, url, delayHours, lastExecution }:
         url,
         delayHours,
         lastExecution,
+        lastPrices,
+        lastProducts,
       },
     });
 
@@ -83,13 +87,18 @@ export const createCrawler = async ({ storeId, url, delayHours, lastExecution }:
   }
 };
 
-export const updateCrawler = async (
-  crawlerId: number,
+interface UpdateCrawlerValues {
+  crawlerId: number;
   updateValues: {
     delayHours?: number;
     lastExecution?: Date;
-  }
-) => {
+    lastPrices?: number;
+    lastProducts?: number;
+  };
+}
+
+export const updateCrawler = async ({ crawlerId, updateValues }: UpdateCrawlerValues) => {
+  console.log("updateValues", JSON.stringify(updateValues));
   try {
     const [updatedRows] = await Crawler.update(updateValues, {
       where: { crawlerId },
