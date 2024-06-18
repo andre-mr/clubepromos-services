@@ -33,6 +33,8 @@ export const runScheduledCrawlers = async () => {
       }
     }
   }
+
+  console.log(`Scheduled crawlers routine finished`);
 };
 
 const shouldRunCrawler = (crawler: Crawler): boolean => {

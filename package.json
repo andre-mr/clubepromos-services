@@ -6,8 +6,9 @@
   "type": "commonjs",
   "scripts": {
     "build": "npx tsc",
-    "start": "npx tsc && pm2 start ecosystem.config.cjs --no-daemon --env production",
-    "dev": "npx tsc && pm2 start ecosystem.config.cjs --no-daemon --watch --env development"
+    "start": "npm run build && pm2 start ecosystem.config.cjs --env production",
+    "dev": "npm run build && pm2 start ecosystem.config.cjs --watch --env development",
+    "update": "pm2 stop sqlcms && git pull && npm start"
   },
   "author": "",
   "license": "ISC",

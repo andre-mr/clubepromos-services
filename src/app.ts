@@ -28,7 +28,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ message: "Internal Server Error" });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
@@ -37,3 +37,20 @@ runScheduledCrawlers();
 cron.schedule(`0 * * * *`, () => {
   runScheduledCrawlers();
 });
+
+// Signal processing to finish the application correctly
+const gracefulShutdown = () => {
+  console.log("Received kill signal, shutting down gracefully...");
+  server.close(() => {
+    console.log("Closed out remaining connections.");
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.error("Could not close connections in time, forcefully shutting down");
+    process.exit(1);
+  }, 10000);
+};
+
+process.on("SIGTERM", gracefulShutdown);
+process.on("SIGINT", gracefulShutdown);
