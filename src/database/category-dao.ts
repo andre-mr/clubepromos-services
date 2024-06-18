@@ -11,10 +11,6 @@ export const createCategory = async ({ categoryName }: { categoryName: string })
       defaults: { categoryName },
     });
 
-    if (!created) {
-      console.error("Category with this name already exists");
-    }
-
     return category;
   } catch (error) {
     if (error instanceof Error) {

@@ -1,16 +1,19 @@
 import Crawler from "../models/crawler";
 import { CrawlerResponse } from "../models/crawler-response";
 import Store from "../models/store";
+import { literal } from "sequelize";
 
 const transformCrawlerToResponse = (crawler: Crawler): CrawlerResponse => {
   return {
     crawlerId: crawler.crawlerId,
     storeName: (crawler as any).Store ? (crawler as any).Store.storeName : null,
     url: crawler.url,
+    description: crawler.description,
     delayHours: crawler.delayHours,
     lastExecution: crawler.lastExecution,
     lastPrices: crawler.lastPrices,
     lastProducts: crawler.lastProducts,
+    productCount: crawler.get("productCount") as number,
   };
 };
 
@@ -30,9 +33,24 @@ export const getCrawlersWithStoreName = async (storeId?: number) => {
 
   const crawlers = await Crawler.findAll({
     where: whereClause,
-    include: {
-      model: Store,
-      attributes: ["storeName"],
+    include: [
+      {
+        model: Store,
+        attributes: ["storeName"],
+      },
+    ],
+    attributes: {
+      include: [
+        // Subquery to get the count of products associated with each crawler
+        [
+          literal(`(
+          SELECT COUNT(*)
+          FROM crawler_product
+          WHERE crawler_product.crawler_id = Crawler.crawler_id
+        )`),
+          "productCount",
+        ],
+      ],
     },
   });
 
@@ -59,13 +77,22 @@ export const getCrawlerByIdWithStoreName = async (crawlerId: number) => {
   return transformCrawlerToResponse(crawler);
 };
 
-export const createCrawler = async ({ storeId, url, delayHours, lastExecution, lastPrices, lastProducts }: Crawler) => {
+export const createCrawler = async ({
+  storeId,
+  url,
+  description,
+  delayHours,
+  lastExecution,
+  lastPrices,
+  lastProducts,
+}: Crawler) => {
   try {
     const [crawler, created] = await Crawler.findOrCreate({
       where: { url },
       defaults: {
         storeId,
         url,
+        description,
         delayHours,
         lastExecution,
         lastPrices,
@@ -74,7 +101,7 @@ export const createCrawler = async ({ storeId, url, delayHours, lastExecution, l
     });
 
     if (!created) {
-      console.error("Crawler with this URL already exists");
+      console.error("Cannot create crawler, try again");
       return null;
     }
 
@@ -91,6 +118,7 @@ interface UpdateCrawlerValues {
   crawlerId: number;
   updateValues: {
     delayHours?: number;
+    description?: string;
     lastExecution?: Date;
     lastPrices?: number;
     lastProducts?: number;
@@ -98,7 +126,6 @@ interface UpdateCrawlerValues {
 }
 
 export const updateCrawler = async ({ crawlerId, updateValues }: UpdateCrawlerValues) => {
-  console.log("updateValues", JSON.stringify(updateValues));
   try {
     const [updatedRows] = await Crawler.update(updateValues, {
       where: { crawlerId },

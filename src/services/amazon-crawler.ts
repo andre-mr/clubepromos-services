@@ -80,6 +80,9 @@ const getAllProducts = async (productUrl: string): Promise<AmazonProduct[]> => {
       method: "GET",
     });
 
+    if (!response.ok) {
+      console.log(response.status, response.statusText);
+    }
     return response.text();
   };
 

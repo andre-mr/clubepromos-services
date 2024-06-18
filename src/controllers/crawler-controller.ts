@@ -98,7 +98,6 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
             price: product.Price,
             priceTimestamp: nowDate,
           });
-          console.log("new price record for product Id:", existingProduct.productId!);
           recordsCreated++;
         }
       } else {
@@ -128,7 +127,6 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
           price: product.Price,
           priceTimestamp: nowDate,
         });
-        console.log("new product Id:", newProductCreated.productId!);
         recordsCreated++;
       }
     }

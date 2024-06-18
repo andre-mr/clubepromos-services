@@ -130,7 +130,7 @@ export const createProduct = async ({
     });
 
     if (!created) {
-      console.error("Product with this SKU already exists");
+      console.error("Cannot create product, try again");
       return null;
     }
 

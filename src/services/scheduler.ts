@@ -38,7 +38,9 @@ export const runScheduledCrawlers = async () => {
 const shouldRunCrawler = (crawler: Crawler): boolean => {
   const currentTime = new Date();
 
-  if (crawler.delayHours === 24) {
+  if (crawler.delayHours <= 0) {
+    return false;
+  } else if (crawler.delayHours >= 24) {
     const CRAWLER_DEFAULT_TIME = parseInt(process.env.CRAWLER_DEFAULT_TIME || "0", 10);
 
     const currentHour = currentTime.getHours();

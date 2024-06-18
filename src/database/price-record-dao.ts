@@ -78,7 +78,7 @@ export const createPriceRecord = async ({ productId, price, priceTimestamp = new
     });
     return newRecord;
   } catch (error) {
-    console.error(`Erro ao adicionar registro de preço: ${error}`);
+    console.error(`Error adding price record: ${error}`);
     return null;
   }
 };

@@ -6,6 +6,7 @@ export interface CrawlerAttributes {
 
   storeId: number;
   url: string;
+  description: string;
   delayHours: number;
   lastExecution: Date;
   lastPrices: number;
@@ -17,6 +18,7 @@ class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
 
   public storeId!: number;
   public url!: string;
+  public description!: string;
   public delayHours!: number;
   public lastExecution!: Date;
   public lastPrices!: number;
@@ -44,6 +46,11 @@ Crawler.init(
       type: DataTypes.STRING,
       allowNull: true,
       field: "url",
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "description",
     },
     delayHours: {
       type: DataTypes.INTEGER,
