@@ -208,7 +208,7 @@ export const handleUpdateCrawler = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Invalid or missing crawler Id" });
   }
 
-  const updateValues = req.body;
+  const updateValues = req.body?.updateValues;
 
   try {
     const updatedRows = await updateCrawler({ crawlerId, updateValues });
