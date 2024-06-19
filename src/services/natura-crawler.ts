@@ -41,18 +41,11 @@ const naturaCrawler = async (): Promise<CrawledProduct[]> => {
         {
           headers: {
             accept: "*/*",
-            "accept-language": "pt-BR,pt;q=0.9",
-            "content-type": "application/json",
-            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "cross-site",
+            "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+            Connection: "keep-alive",
             tenant_id: "brazil-natura-web",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
             "x-api-key": X_API_KEY,
-            Referer: "https://www.natura.com.br/",
-            "Referrer-Policy": "strict-origin-when-cross-origin",
           },
           body: null,
           method: "GET",
@@ -81,6 +74,7 @@ const naturaCrawler = async (): Promise<CrawledProduct[]> => {
       }
     }
     allProducts.push(...categoryProducts);
+    console.log("Category fetched: ", category, categoryProducts.length);
   }
 
   return allProducts;
