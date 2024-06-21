@@ -5,12 +5,14 @@ interface StoreAttributes {
   storeId?: number;
 
   storeName: string;
+  proxyUse: boolean;
 }
 
 class Store extends Model<StoreAttributes> implements StoreAttributes {
   public storeId?: number;
 
   public storeName!: string;
+  proxyUse!: boolean;
 }
 
 Store.init(
@@ -26,6 +28,11 @@ Store.init(
       allowNull: false,
       unique: true,
       field: "store_name",
+    },
+    proxyUse: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      field: "proxy_use",
     },
   },
   {

@@ -6,26 +6,28 @@
   "type": "commonjs",
   "scripts": {
     "build": "npx tsc",
-    "start": "npm run build && pm2 start ecosystem.config.cjs --env production",
-    "dev": "npm run build && pm2 start ecosystem.config.cjs --watch --env development",
-    "update": "pm2 stop sqlcms && git pull && npm start"
+    "start": "npm run build && node dist/app.js --env production",
+    "dev": "npm run build && node dist/app.js --env development"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
-    "dotenv": "^16.4.5",
-    "express": "^4.18.3",
-    "mysql2": "^3.9.2",
-    "node-cron": "^3.0.3",
-    "sequelize": "^6.37.1"
+    "cheerio": "1.0.0-rc.12",
+    "dotenv": "16.4.5",
+    "express": "4.18.3",
+    "https-proxy-agent": "7.0.4",
+    "mysql2": "3.9.2",
+    "node-cron": "3.0.3",
+    "node-fetch": "2.7",
+    "sequelize": "6.37.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.24",
-    "@types/node-cron": "^3.0.11",
-    "nodemon": "^3.1.0",
-    "tsx": "^4.7.1",
-    "typescript": "^5.3.3"
+    "@types/express": "4.17.21",
+    "@types/node": "20.11.24",
+    "@types/node-cron": "3.0.11",
+    "@types/node-fetch": "2.6.11",
+    "nodemon": "3.1.0",
+    "tsx": "4.7.1",
+    "typescript": "5.3.3"
   }
 }

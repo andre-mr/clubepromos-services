@@ -1,5 +1,6 @@
 import { URLSanitizer } from "../utils/sanitizer";
 import CrawledProduct from "../models/crawled-product";
+import { fetchJSON } from "./fetch-custom";
 
 const X_API_KEY = "fTo8UT5bjg9C6EIidaTEG7Zs3Syz6CzR7ADI4sL7";
 const CONSULTORIA = "pechincheiro";
@@ -28,7 +29,7 @@ function mapProductAttributes(product: any, category: string): CrawledProduct {
   } as CrawledProduct;
 }
 
-const naturaCrawler = async (): Promise<CrawledProduct[]> => {
+const naturaCrawler = async (proxyEndpoint?: string): Promise<CrawledProduct[]> => {
   let allProducts: CrawledProduct[] = [];
   for (const category of CATEGORIES) {
     let start = 0;
@@ -36,21 +37,20 @@ const naturaCrawler = async (): Promise<CrawledProduct[]> => {
     let categoryProducts: CrawledProduct[] = [];
 
     while (fetchMore) {
-      const response = await fetch(
-        `https://ncf-apigw.prd.naturacloud.com/bff-app-natura-brazil/products-search?count=48&q=&expand=prices,availability,images,variations&sort=product-name-ascending&start=${start}&refine_1=cgid=${category}`,
-        {
-          headers: {
-            accept: "*/*",
-            "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
-            Connection: "keep-alive",
-            tenant_id: "brazil-natura-web",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
-            "x-api-key": X_API_KEY,
-          },
-          body: null,
-          method: "GET",
-        }
-      );
+      const response = await fetchJSON({
+        proxyEndpoint,
+        url: `https://ncf-apigw.prd.naturacloud.com/bff-app-natura-brazil/products-search?count=48&q=&expand=prices,availability,images,variations&sort=product-name-ascending&start=${start}&refine_1=cgid=${category}`,
+        headers: {
+          accept: "*/*",
+          "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3",
+          Connection: "keep-alive",
+          tenant_id: "brazil-natura-web",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+          "x-api-key": X_API_KEY,
+        },
+        body: null,
+        method: "GET",
+      });
 
       if (!response.ok) {
         console.error(`Error: ${response.status} - ${response.statusText}`);

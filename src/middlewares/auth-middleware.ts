@@ -7,7 +7,7 @@ export const authMiddleware = (
 ): void => {
   const apiKey = req.headers["x-api-key"];
   if (!apiKey || apiKey !== process.env.API_KEY) {
-    res.status(403).send("Access Denied");
+    res.status(403).send("Access Denied!");
     return;
   }
   next();

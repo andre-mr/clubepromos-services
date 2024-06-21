@@ -20,6 +20,7 @@ import {
 import Crawler from "../models/crawler";
 import Store from "../models/store";
 import { isCrawlerRunning } from "../services/scheduler";
+import { createCrawlerProduct } from "../database/crawler-product-dao";
 
 // import fs from "fs";
 
@@ -72,14 +73,16 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
     }
     let crawledProducts: CrawledProduct[];
     let recordsCreated = 0;
+    const PROXY_ENDPOINT = process.env.PROXY_ENDPOINT;
+
     switch (storeDetected.storeName) {
       case "Natura":
         console.log("Starting Natura crawler...");
-        crawledProducts = await naturaCrawler();
+        crawledProducts = await naturaCrawler(storeDetected.proxyUse ? PROXY_ENDPOINT : undefined);
         break;
       case "Amazon":
         console.log("Starting Amazon crawler...");
-        crawledProducts = await amazonCrawler(crawlerDetected);
+        crawledProducts = await amazonCrawler(crawlerDetected, storeDetected.proxyUse ? PROXY_ENDPOINT : undefined);
         break;
       default:
         console.error("Store not supported");
@@ -115,6 +118,13 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
         newProduct.storeId = storeDetected.storeId!;
 
         const newProductCreated = await createProduct(newProduct);
+        if (newProductCreated) {
+          createCrawlerProduct({
+            crawlerId: crawlerDetected.crawlerId,
+            productId: newProductCreated.productId!,
+          });
+        }
+
         newProducts++;
 
         if (!newProductCreated) {
@@ -141,7 +151,7 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
 
     return crawlerDetected;
   } catch (error: unknown) {
-    console.log("error");
+    console.log("Error running crawler!");
     return false;
   }
 };

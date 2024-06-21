@@ -7,5 +7,6 @@ export interface CrawlerResponse {
   lastExecution: Date | null;
   lastPrices: number | null;
   lastProducts: number | null;
+  lastStatus: boolean | null;
   productCount: number | null;
 }

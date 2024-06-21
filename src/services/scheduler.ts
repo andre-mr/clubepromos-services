@@ -6,31 +6,40 @@ let runningCrawlers: Set<number> = new Set();
 
 export const runScheduledCrawlers = async () => {
   const crawlers = await getCrawlers();
-  console.log(`Running ${crawlers?.length} scheduled crawlers...`);
+  const runnableCrawlers = crawlers.filter((crawler) => isCrawlerRunning(crawler) && shouldRunCrawler(crawler));
+  console.log(`Running ${runnableCrawlers.length} of ${crawlers.length} crawlers...`);
 
-  for (const crawler of crawlers) {
-    if (!isCrawlerRunning(crawler) && shouldRunCrawler(crawler)) {
-      runningCrawlers.add(crawler.crawlerId);
-      try {
-        const crawlerResult = await runCrawler(crawler);
-        if (crawlerResult) {
-          updateCrawler({
-            crawlerId: crawlerResult.crawlerId,
-            updateValues: {
-              lastExecution: crawlerResult.lastExecution,
-              lastPrices: crawlerResult.lastPrices,
-              lastProducts: crawlerResult.lastProducts,
-            },
-          });
-          console.log(`Crawler ${crawler.crawlerId} finished`);
-        } else {
-          console.log(`Crawler ${crawler.crawlerId} didn't run`);
-        }
-      } catch (error) {
-        console.error(`Error running crawler ${crawler.crawlerId}:`, error);
-      } finally {
-        runningCrawlers.delete(crawler.crawlerId);
+  for (const crawler of runnableCrawlers) {
+    runningCrawlers.add(crawler.crawlerId);
+    try {
+      const crawlerResult = await runCrawler(crawler);
+      if (crawlerResult) {
+        updateCrawler({
+          crawlerId: crawlerResult.crawlerId,
+          updateValues: {
+            lastExecution: crawlerResult.lastExecution,
+            lastPrices: crawlerResult.lastPrices,
+            lastProducts: crawlerResult.lastProducts,
+            lastStatus: true,
+          },
+        });
+        console.log(`Crawler ${crawler.crawlerId} finished`);
+      } else {
+        updateCrawler({
+          crawlerId: crawler.crawlerId,
+          updateValues: {
+            lastExecution: new Date(),
+            lastPrices: 0,
+            lastProducts: 0,
+            lastStatus: false,
+          },
+        });
+        console.log(`Crawler ${crawler.crawlerId} didn't run`);
       }
+    } catch (error) {
+      console.error(`Error running crawler ${crawler.crawlerId}:`, error);
+    } finally {
+      runningCrawlers.delete(crawler.crawlerId);
     }
   }
 

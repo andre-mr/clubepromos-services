@@ -13,6 +13,7 @@ const transformCrawlerToResponse = (crawler: Crawler): CrawlerResponse => {
     lastExecution: crawler.lastExecution,
     lastPrices: crawler.lastPrices,
     lastProducts: crawler.lastProducts,
+    lastStatus: crawler.lastStatus,
     productCount: crawler.get("productCount") as number,
   };
 };
@@ -85,6 +86,7 @@ export const createCrawler = async ({
   lastExecution,
   lastPrices,
   lastProducts,
+  lastStatus,
 }: Crawler) => {
   try {
     const [crawler, created] = await Crawler.findOrCreate({
@@ -97,6 +99,7 @@ export const createCrawler = async ({
         lastExecution,
         lastPrices,
         lastProducts,
+        lastStatus,
       },
     });
 
@@ -122,6 +125,7 @@ interface UpdateCrawlerValues {
     lastExecution?: Date;
     lastPrices?: number;
     lastProducts?: number;
+    lastStatus?: boolean;
   };
 }
 

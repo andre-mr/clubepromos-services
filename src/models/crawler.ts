@@ -11,6 +11,7 @@ export interface CrawlerAttributes {
   lastExecution: Date;
   lastPrices: number;
   lastProducts: number;
+  lastStatus: boolean;
 }
 
 class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
@@ -23,6 +24,7 @@ class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
   public lastExecution!: Date;
   public lastPrices!: number;
   public lastProducts!: number;
+  public lastStatus!: boolean;
 }
 
 Crawler.init(
@@ -72,6 +74,11 @@ Crawler.init(
       type: DataTypes.INTEGER,
       allowNull: true,
       field: "last_products",
+    },
+    lastStatus: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      field: "last_status",
     },
   },
   {

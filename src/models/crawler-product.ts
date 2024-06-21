@@ -1,9 +1,15 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../database/sequelize";
 
-class CrawlerProduct extends Model {
-  public crawlerId!: number;
-  public productId!: number;
+interface CrawlerProductAttributes {
+  crawlerId?: number;
+  productId?: number;
+}
+
+class CrawlerProduct extends Model<CrawlerProductAttributes> implements CrawlerProductAttributes {
+  public crawlerId?: number;
+
+  public productId?: number;
 }
 
 CrawlerProduct.init(
@@ -11,18 +17,12 @@ CrawlerProduct.init(
     crawlerId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      references: {
-        model: "crawlers",
-        key: "crawler_id",
-      },
+      field: "crawler_id",
     },
     productId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      references: {
-        model: "products",
-        key: "product_id",
-      },
+      field: "product_id",
     },
   },
   {
@@ -33,3 +33,4 @@ CrawlerProduct.init(
 );
 
 export default CrawlerProduct;
+export { CrawlerProductAttributes };
