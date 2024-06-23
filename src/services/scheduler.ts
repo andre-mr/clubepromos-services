@@ -6,7 +6,7 @@ let runningCrawlers: Set<number> = new Set();
 
 export const runScheduledCrawlers = async () => {
   const crawlers = await getCrawlers();
-  const runnableCrawlers = crawlers.filter((crawler) => isCrawlerRunning(crawler) && shouldRunCrawler(crawler));
+  const runnableCrawlers = crawlers.filter((crawler) => !isCrawlerRunning(crawler) && shouldRunCrawler(crawler));
   console.log(`Running ${runnableCrawlers.length} of ${crawlers.length} crawlers...`);
 
   for (const crawler of runnableCrawlers) {

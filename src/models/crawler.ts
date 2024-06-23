@@ -8,10 +8,10 @@ export interface CrawlerAttributes {
   url: string;
   description: string;
   delayHours: number;
-  lastExecution: Date;
-  lastPrices: number;
-  lastProducts: number;
-  lastStatus: boolean;
+  lastExecution: Date | null;
+  lastPrices: number | null;
+  lastProducts: number | null;
+  lastStatus: boolean | null;
 }
 
 class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
@@ -21,10 +21,10 @@ class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
   public url!: string;
   public description!: string;
   public delayHours!: number;
-  public lastExecution!: Date;
-  public lastPrices!: number;
-  public lastProducts!: number;
-  public lastStatus!: boolean;
+  public lastExecution!: Date | null;
+  public lastPrices!: number | null;
+  public lastProducts!: number | null;
+  public lastStatus!: boolean | null;
 }
 
 Crawler.init(

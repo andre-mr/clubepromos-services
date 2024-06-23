@@ -83,10 +83,10 @@ export const createCrawler = async ({
   url,
   description,
   delayHours,
-  lastExecution,
-  lastPrices,
-  lastProducts,
-  lastStatus,
+  lastExecution = null,
+  lastPrices = null,
+  lastProducts = null,
+  lastStatus = null,
 }: Crawler) => {
   try {
     const [crawler, created] = await Crawler.findOrCreate({
@@ -122,10 +122,10 @@ interface UpdateCrawlerValues {
   updateValues: {
     delayHours?: number;
     description?: string;
-    lastExecution?: Date;
-    lastPrices?: number;
-    lastProducts?: number;
-    lastStatus?: boolean;
+    lastExecution?: Date | null;
+    lastPrices?: number | null;
+    lastProducts?: number | null;
+    lastStatus?: boolean | null;
   };
 }
 

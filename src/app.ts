@@ -4,6 +4,7 @@ dotenv.config();
 
 import crawlersRoute from "./routes/crawlers-route";
 import productsRoute from "./routes/products-route";
+import storesRoute from "./routes/stores-route";
 import priceHistoryRoute from "./routes/price-history-route";
 import { authMiddleware } from "./middlewares/auth-middleware";
 import cron from "node-cron";
@@ -17,6 +18,7 @@ app.use(authMiddleware);
 
 app.use("/crawlers", crawlersRoute);
 app.use("/products", productsRoute);
+app.use("/stores", storesRoute);
 app.use("/pricehistory", priceHistoryRoute);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -32,7 +34,9 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+// trying to run crawlers at startup
 runScheduledCrawlers();
+
 // Schedule the crawlers to run at the start of every hour
 cron.schedule(`0 * * * *`, () => {
   runScheduledCrawlers();

@@ -1,7 +1,7 @@
 import { getProductByIdWithNames, getProductsWithNames } from "../database/product-dao";
 import { Request, Response } from "express";
 
-export const handleGetProductsById = async (req: Request, res: Response) => {
+export const handleGetProductById = async (req: Request, res: Response) => {
   const productIdParam = req.params.id as string;
 
   const productId =
@@ -27,18 +27,30 @@ export const handleGetProductsById = async (req: Request, res: Response) => {
 
 export const handleGetProducts = async (req: Request, res: Response) => {
   const storeIdParam = req.query.storeId;
+  const crawlerIdParam = req.query.crawlerId;
+  const categoryIdParam = req.query.categoryId;
 
   const storeId =
     typeof storeIdParam === "string" && !isNaN(Number(storeIdParam)) && Number(storeIdParam) % 1 === 0
       ? Number(storeIdParam)
-      : null;
+      : undefined;
 
-  if (!storeId) {
-    return res.status(400).json({ message: "Invalid or missing store ID" });
+  const crawlerId =
+    typeof crawlerIdParam === "string" && !isNaN(Number(crawlerIdParam)) && Number(crawlerIdParam) % 1 === 0
+      ? Number(crawlerIdParam)
+      : undefined;
+
+  const categoryId =
+    typeof categoryIdParam === "string" && !isNaN(Number(categoryIdParam)) && Number(categoryIdParam) % 1 === 0
+      ? Number(categoryIdParam)
+      : undefined;
+
+  if (!storeId && !crawlerId) {
+    return res.status(400).json({ message: "At least one of storeId or crawlerId must be provided." });
   }
 
   try {
-    const productsResponse = await getProductsWithNames(storeId);
+    const productsResponse = await getProductsWithNames(storeId, crawlerId, categoryId);
     res.status(200).json(productsResponse);
   } catch (error: unknown) {
     if (error instanceof Error) {

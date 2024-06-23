@@ -7,7 +7,7 @@ import { findCategoryByName, createCategory } from "../database/category-dao";
 import CrawledProduct from "../models/crawled-product";
 import Category from "../models/category";
 import Product from "../models/product";
-import { findStoreByID } from "../database/store-dao";
+import { getStoreByID, getStoreByName } from "../database/store-dao";
 import { capitalizeTitle } from "../utils/capitalize";
 import {
   getCrawlerById,
@@ -35,7 +35,7 @@ export const handleRunCrawler = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "Crawler not found" });
   }
 
-  const storeDetected = await findStoreByID(crawlerDetected.storeId);
+  const storeDetected = await getStoreByID(crawlerDetected.storeId);
   if (!storeDetected) {
     return res.status(404).json({ message: "Store not found for the given crawler" });
   }
@@ -65,7 +65,7 @@ export const handleRunCrawler = async (req: Request, res: Response) => {
 export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store) => {
   try {
     if (!storeDetected) {
-      const foundStore = await findStoreByID(crawlerDetected.storeId);
+      const foundStore = await getStoreByID(crawlerDetected.storeId);
       if (!foundStore) {
         return false;
       }
@@ -263,14 +263,27 @@ export const handleDeleteCrawler = async (req: Request, res: Response) => {
 };
 
 export const handleCreateCrawler = async (req: Request, res: Response) => {
-  const crawlerData = req.body;
-
   try {
-    const crawler = await createCrawler(crawlerData);
-    if (!crawler) {
-      return res.status(409).json({ message: "Crawler with this SKU already exists" });
+    if (req.body.StoreName) {
+      const foundStore = await getStoreByName(req.body.StoreName);
+      if (foundStore) {
+        const crawlerData = {
+          storeId: foundStore.storeId,
+          url: req.body.Url,
+          description: req.body.Description,
+          delayHours: req.body.DelayHours,
+          lastExecution: null,
+          lastPrices: null,
+          lastProducts: null,
+          lastStatus: null,
+        };
+        const crawler = await createCrawler(crawlerData as Crawler);
+        if (!crawler) {
+          return res.status(409).json({ message: "Crawler with this id already exists" });
+        }
+        res.status(201).json({ message: "Crawler created successfully", crawler });
+      }
     }
-    res.status(201).json({ message: "Crawler created successfully", crawler });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });

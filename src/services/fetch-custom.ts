@@ -64,7 +64,7 @@ function createRequestOptions({
 
 const fetchBasic = async ({ url, proxyEndpoint }: FetchOptions): Promise<Response | NodeFetchResponse> => {
   if (proxyEndpoint) {
-    console.log("fetchBasic", url, "using proxy");
+    console.log("fetchBasic using proxy");
   }
 
   const options = createRequestOptions({ proxyEndpoint });
@@ -77,7 +77,7 @@ const fetchBasic = async ({ url, proxyEndpoint }: FetchOptions): Promise<Respons
 
 const fetchHtml = async ({ url, proxyEndpoint }: FetchOptions): Promise<Response | NodeFetchResponse> => {
   if (proxyEndpoint) {
-    console.log("fetchHtml", url, "using proxy");
+    console.log("fetchHtml using proxy");
   }
 
   const headers = {
@@ -130,7 +130,7 @@ const fetchJSON = async ({
   referrer,
 }: FetchOptions): Promise<Response | NodeFetchResponse> => {
   if (proxyEndpoint) {
-    console.log("fetchJSON", url, "using proxy");
+    console.log("fetchJSON using proxy");
   }
 
   const options = createRequestOptions({

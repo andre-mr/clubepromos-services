@@ -1,6 +1,7 @@
 export interface ProductResponse {
   productId: number;
   categoryName: string | null;
+  priceHistory?: number[];
   productBrand: string;
   productImage: string;
   productName: string;
