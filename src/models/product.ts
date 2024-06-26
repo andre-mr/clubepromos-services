@@ -6,6 +6,7 @@ interface ProductAttributes {
   productId?: number;
 
   categoryId: number;
+  createdAt: Date;
   productBrand: string;
   productImage: string;
   productName: string;
@@ -22,6 +23,7 @@ class Product extends Model<ProductInstance> implements ProductInstance {
   public productId?: number;
 
   public categoryId!: number;
+  public createdAt!: Date;
   public productBrand!: string;
   public productImage!: string;
   public productUrl!: string;
@@ -44,6 +46,12 @@ Product.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       field: "category_id",
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: new Date(),
+      field: "created_at",
     },
     productBrand: {
       type: DataTypes.STRING(255),

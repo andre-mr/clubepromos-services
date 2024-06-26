@@ -7,7 +7,11 @@ let runningCrawlers: Set<number> = new Set();
 export const runScheduledCrawlers = async () => {
   const crawlers = await getCrawlers();
   const runnableCrawlers = crawlers.filter((crawler) => !isCrawlerRunning(crawler) && shouldRunCrawler(crawler));
-  console.log(`Running ${runnableCrawlers.length} of ${crawlers.length} crawlers...`);
+  if (runnableCrawlers.length > 0) {
+    console.log(`Running ${runnableCrawlers.length} of ${crawlers.length} crawlers...`);
+  } else {
+    console.log(`No crawler scheduled to run at this time from ${crawlers.length} crawlers...`);
+  }
 
   for (const crawler of runnableCrawlers) {
     runningCrawlers.add(crawler.crawlerId);
@@ -43,7 +47,7 @@ export const runScheduledCrawlers = async () => {
     }
   }
 
-  console.log(`Scheduled crawlers routine finished`);
+  console.log(`Scheduled crawlers routine finished at ${new Date().toLocaleString("pt-BR")}`);
 };
 
 const shouldRunCrawler = (crawler: Crawler): boolean => {
@@ -55,15 +59,36 @@ const shouldRunCrawler = (crawler: Crawler): boolean => {
     const CRAWLER_DEFAULT_TIME = parseInt(process.env.CRAWLER_DEFAULT_TIME || "0", 10);
 
     const currentHour = currentTime.getHours();
-    const allowedExecutionStart = CRAWLER_DEFAULT_TIME;
-    const allowedExecutionEnd = (CRAWLER_DEFAULT_TIME + 2) % 24;
+    const defaultExecutionStartHour = CRAWLER_DEFAULT_TIME;
 
-    if (allowedExecutionStart <= allowedExecutionEnd) {
-      return currentHour >= allowedExecutionStart && currentHour <= allowedExecutionEnd;
-    } else {
-      return currentHour >= allowedExecutionStart || currentHour <= allowedExecutionEnd;
+    // Calculate the number of days for the delay
+    const delayDays = Math.ceil(crawler.delayHours / 24);
+
+    let lastExecution = crawler.lastExecution ? new Date(crawler.lastExecution) : null;
+    if (!lastExecution) {
+      // If lastExecution is null, allow the crawler to run the first time
+      lastExecution = new Date();
+      lastExecution.setDate(lastExecution.getDate() - delayDays);
+      lastExecution.setHours(defaultExecutionStartHour, 0, 0, 0);
     }
+
+    // Calculate the next valid execution date
+    const nextExecutionDate = new Date(lastExecution);
+    nextExecutionDate.setDate(lastExecution.getDate() + delayDays);
+    nextExecutionDate.setHours(defaultExecutionStartHour, 0, 0, 0); // Set to CRAWLER_DEFAULT_TIME with zero minutes and seconds
+
+    // Check if current time is within the valid execution window of one hour after CRAWLER_DEFAULT_TIME
+    if (
+      currentHour === defaultExecutionStartHour &&
+      currentTime >= nextExecutionDate &&
+      currentTime < new Date(nextExecutionDate.getTime() + 60 * 60 * 1000) // within one hour window
+    ) {
+      return true;
+    }
+
+    return false;
   }
+
   if (!crawler.lastExecution) {
     return true;
   }

@@ -77,11 +77,11 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
 
     switch (storeDetected.storeName) {
       case "Natura":
-        console.log("Starting Natura crawler...");
+        console.log(`Starting crawler [Natura][${crawlerDetected.description}]...`);
         crawledProducts = await naturaCrawler(storeDetected.proxyUse ? PROXY_ENDPOINT : undefined);
         break;
       case "Amazon":
-        console.log("Starting Amazon crawler...");
+        console.log(`Starting crawler [Amazon][${crawlerDetected.description}]...`);
         crawledProducts = await amazonCrawler(crawlerDetected, storeDetected.proxyUse ? PROXY_ENDPOINT : undefined);
         break;
       default:
@@ -91,9 +91,11 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
 
     const nowDate = new Date();
     let newProducts = 0;
+    const newlyCreatedSKUs = new Set<string>();
+
     for (const product of crawledProducts) {
       const existingProduct = await getProductBySKUAndStore(product.Sku, storeDetected.storeId!);
-      if (existingProduct) {
+      if (existingProduct && !newlyCreatedSKUs.has(product.Sku)) {
         const latestRecord = await getLatestPriceRecord(storeDetected.storeName, existingProduct.productId!);
         if (!latestRecord || latestRecord.price != product.Price) {
           await createPriceRecord({
@@ -118,30 +120,30 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
         newProduct.storeId = storeDetected.storeId!;
 
         const newProductCreated = await createProduct(newProduct);
-        if (newProductCreated) {
-          createCrawlerProduct({
+        if (newProductCreated && newProductCreated.productId) {
+          newlyCreatedSKUs.add(product.Sku);
+          newProducts++;
+
+          await createCrawlerProduct({
             crawlerId: crawlerDetected.crawlerId,
-            productId: newProductCreated.productId!,
+            productId: newProductCreated.productId,
           });
-        }
 
-        newProducts++;
-
-        if (!newProductCreated) {
+          await createPriceRecord({
+            productId: newProductCreated.productId,
+            price: product.Price,
+            priceTimestamp: nowDate,
+          }).then((createdPriceRecord) => {
+            if (createdPriceRecord) recordsCreated++;
+          });
+        } else {
           console.error("Error creating product");
           continue;
         }
-
-        await createPriceRecord({
-          productId: newProductCreated.productId!,
-          price: product.Price,
-          priceTimestamp: nowDate,
-        });
-        recordsCreated++;
       }
     }
 
-    console.log(`Crawler [${storeDetected.storeName}][${crawlerDetected.crawlerId}] finished successfully!`);
+    console.log(`Crawler [${storeDetected.storeName}][${crawlerDetected.description}] finished successfully!`);
     console.log(`${recordsCreated} price records created!`);
     console.log(`${newProducts} new products created!`);
 

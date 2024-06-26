@@ -2,7 +2,7 @@ import CrawlerProduct from "../models/crawler-product";
 
 export const createCrawlerProduct = async ({ crawlerId, productId }: { crawlerId: number; productId: number }) => {
   try {
-    const [crawlerProduct, created] = await CrawlerProduct.findOrCreate({
+    const [crawlerProduct, wasCreated] = await CrawlerProduct.findOrCreate({
       where: { crawlerId, productId },
     });
 

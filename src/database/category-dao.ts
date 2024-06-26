@@ -6,7 +6,7 @@ export const findCategoryByName = async (categoryName: string) => {
 
 export const createCategory = async ({ categoryName }: { categoryName: string }) => {
   try {
-    const [category, created] = await Category.findOrCreate({
+    const [category, wasCreated] = await Category.findOrCreate({
       where: { categoryName },
       defaults: { categoryName },
     });

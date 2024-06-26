@@ -5,26 +5,28 @@ export interface CrawlerAttributes {
   crawlerId?: number;
 
   storeId: number;
-  url: string;
+  createdAt: Date;
   description: string;
   delayHours: number;
   lastExecution: Date | null;
   lastPrices: number | null;
   lastProducts: number | null;
   lastStatus: boolean | null;
+  url: string;
 }
 
 class Crawler extends Model<CrawlerAttributes> implements CrawlerAttributes {
   public crawlerId!: number;
 
   public storeId!: number;
-  public url!: string;
+  public createdAt!: Date;
   public description!: string;
   public delayHours!: number;
   public lastExecution!: Date | null;
   public lastPrices!: number | null;
   public lastProducts!: number | null;
   public lastStatus!: boolean | null;
+  public url!: string;
 }
 
 Crawler.init(
@@ -44,10 +46,11 @@ Crawler.init(
         key: "store_id",
       },
     },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      field: "url",
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: new Date(),
+      field: "created_at",
     },
     description: {
       type: DataTypes.STRING,
@@ -79,6 +82,11 @@ Crawler.init(
       type: DataTypes.BOOLEAN,
       allowNull: true,
       field: "last_status",
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: "url",
     },
   },
   {

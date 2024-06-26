@@ -71,15 +71,18 @@ const getAllProducts = async (productUrl: string, proxyEndpoint?: string): Promi
           ?.split(", ")
           .find((src) => src.includes("2x"))
           ?.split(" ")[0] || "";
-      const priceText = $(element).find("span.a-offscreen").first().text().replace("R$", "").trim().replace(",", ".");
-      const discountPriceFullText = $(element).text();
 
-      const price = parseFloat(priceText || "0");
-      let priceDiscount: number = price;
-      const discountPriceRegex = /(\d+,\d+) com desconto Programe e Poupe/;
+      const priceText = $(element).find("span.a-offscreen").first().text().replace("R$", "").trim();
+      const formattedPriceText = priceText.replace(/\./g, "").replace(",", ".");
+      const price = parseFloat(formattedPriceText || "0");
+
+      let priceDiscount = price;
+      const discountPriceFullText = $(element).text();
+      const discountPriceRegex = /(\d+\.\d+,\d+) com desconto Programe e Poupe/;
       const discountPriceMatch = discountPriceFullText.match(discountPriceRegex);
       if (discountPriceMatch) {
-        priceDiscount = parseFloat(discountPriceMatch[1].replace(",", "."));
+        const formattedDiscountPriceText = discountPriceMatch[1].replace(/\./g, "").replace(",", ".");
+        priceDiscount = parseFloat(formattedDiscountPriceText);
       }
 
       if (name && (price || priceDiscount)) {

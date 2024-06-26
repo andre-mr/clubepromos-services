@@ -7,7 +7,7 @@ const transformCrawlerToResponse = (crawler: Crawler): CrawlerResponse => {
   return {
     crawlerId: crawler.crawlerId,
     storeName: (crawler as any).Store ? (crawler as any).Store.storeName : null,
-    url: crawler.url,
+    createdAt: crawler.createdAt,
     description: crawler.description,
     delayHours: crawler.delayHours,
     lastExecution: crawler.lastExecution,
@@ -15,6 +15,7 @@ const transformCrawlerToResponse = (crawler: Crawler): CrawlerResponse => {
     lastProducts: crawler.lastProducts,
     lastStatus: crawler.lastStatus,
     productCount: crawler.get("productCount") as number,
+    url: crawler.url,
   };
 };
 
@@ -80,30 +81,32 @@ export const getCrawlerByIdWithStoreName = async (crawlerId: number) => {
 
 export const createCrawler = async ({
   storeId,
-  url,
+  createdAt,
   description,
   delayHours,
   lastExecution = null,
   lastPrices = null,
   lastProducts = null,
   lastStatus = null,
+  url,
 }: Crawler) => {
   try {
-    const [crawler, created] = await Crawler.findOrCreate({
+    const [crawler, wasCreated] = await Crawler.findOrCreate({
       where: { url },
       defaults: {
         storeId,
-        url,
+        createdAt,
         description,
         delayHours,
         lastExecution,
         lastPrices,
         lastProducts,
         lastStatus,
+        url,
       },
     });
 
-    if (!created) {
+    if (!wasCreated) {
       console.error("Cannot create crawler, try again");
       return null;
     }
