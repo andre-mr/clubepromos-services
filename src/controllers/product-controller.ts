@@ -1,6 +1,7 @@
 import { getProductByIdWithNames, getProductsWithNames, getRecentOrDiscountedProducts } from "../database/product-dao";
 import { Request, Response } from "express";
 import { ProductResponse } from "../models/product-response";
+import { analyzePrices } from "../utils/price-analyzer";
 
 export const handleGetProductById = async (req: Request, res: Response) => {
   const productIdParam = req.params.id as string;
@@ -54,6 +55,7 @@ export const handleGetProducts = async (req: Request, res: Response) => {
     let productsResponse: ProductResponse[] = [];
     if (!storeId && !crawlerId && !categoryId && !searchTerm) {
       productsResponse = await getRecentOrDiscountedProducts();
+      productsResponse = analyzePrices(productsResponse);
     } else {
       productsResponse = await getProductsWithNames(storeId, crawlerId, categoryId, searchTerm);
     }

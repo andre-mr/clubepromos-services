@@ -15,7 +15,7 @@ const transformProductToResponse = (product: Product): ProductResponse => {
     (priceRecord: PriceRecord) =>
       ({
         timestamp: priceRecord.priceTimestamp,
-        price: priceRecord.price,
+        price: parseFloat(priceRecord.price.toString()),
       } as PriceHistory)
   ) as PriceHistory[];
 
@@ -24,6 +24,7 @@ const transformProductToResponse = (product: Product): ProductResponse => {
 
     categoryName: (product as any).Category ? (product as any).Category.categoryName : null,
     createdAt: product.createdAt,
+    discountRate: 0,
     productBrand: product.productBrand,
     productImage: product.productImage,
     productName: product.productName,
@@ -155,42 +156,17 @@ export const getProductsWithNames = async (
 };
 
 export const getRecentOrDiscountedProducts = async (): Promise<ProductResponse[]> => {
-  const currentDate = new Date();
-  const yesterday = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000);
-
-  const recentProductsWhereClause = {
-    createdAt: {
-      [Op.gte]: yesterday,
-    },
-  };
-
-  const discountedProductsWhereClause = literal(`
-    EXISTS (
-      SELECT 1
-      FROM price_records AS pr1
-      JOIN (
-        SELECT pr2.product_id, MAX(pr2.price_timestamp) AS max_price_timestamp
-        FROM price_records AS pr2
-        GROUP BY pr2.product_id
-      ) AS latest
-      ON pr1.product_id = latest.product_id
-      AND pr1.price_timestamp = latest.max_price_timestamp
-      WHERE pr1.product_id = Product.product_id
-      AND pr1.price < (
-        SELECT pr3.price
-        FROM price_records AS pr3
-        WHERE pr3.product_id = Product.product_id
-        AND pr3.price_timestamp < pr1.price_timestamp
-        ORDER BY pr3.price_timestamp DESC
-        LIMIT 1
-      )
-    )
-  `);
+  const yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
   const products = await Product.findAll({
-    where: {
-      [Op.or]: [recentProductsWhereClause, discountedProductsWhereClause],
-    },
+    where: literal(`EXISTS (
+      SELECT 1 FROM price_records 
+      WHERE 
+        price_records.product_id = Product.product_id AND
+        price_records.price_timestamp >= '${yesterday.toISOString()}'
+      ORDER BY price_records.price_timestamp DESC
+      LIMIT 1
+    )`),
     include: [
       {
         model: Store,
@@ -203,11 +179,18 @@ export const getRecentOrDiscountedProducts = async (): Promise<ProductResponse[]
       {
         model: PriceRecord,
         attributes: ["price", "priceTimestamp"],
-        order: [["priceTimestamp", "DESC"]],
-        limit: 100,
+        // separate: true,
+        // order: [["priceTimestamp", "DESC"]],
+        required: true,
       },
     ],
-  });
+    order: [[PriceRecord, "priceTimestamp", "DESC"]],
+  })
+    .then((response) => response)
+    .catch((error) => {
+      console.error("error", error);
+      return [];
+    });
 
   return products.map(transformProductToResponse);
 };
