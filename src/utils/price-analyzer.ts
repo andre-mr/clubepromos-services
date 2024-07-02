@@ -43,7 +43,7 @@ const filterOutliers = (prices: number[]): number[] => {
 };
 
 // Main function
-export const analyzePrices = (products: ProductResponse[]): ProductResponse[] => {
+export const analyzePrices = (products: ProductResponse[], filter?: boolean): ProductResponse[] => {
   return products.filter((product) => {
     if (!product.priceHistory || (product.createdAt && product.createdAt > new Date(new Date().getTime() - ONE_DAY))) {
       return true; // New product returned for manual review
@@ -66,6 +66,6 @@ export const analyzePrices = (products: ProductResponse[]): ProductResponse[] =>
       return true;
     }
 
-    return false; // Older product discarded
+    if (!filter) return true; // Older product discarded
   });
 };

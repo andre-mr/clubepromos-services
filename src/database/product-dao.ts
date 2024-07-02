@@ -24,6 +24,7 @@ const transformProductToResponse = (product: Product): ProductResponse => {
 
     categoryName: (product as any).Category ? (product as any).Category.categoryName : null,
     createdAt: product.createdAt,
+    verifiedAt: product.verifiedAt,
     discountRate: 0,
     productBrand: product.productBrand,
     productImage: product.productImage,
@@ -105,9 +106,6 @@ export const getProductsWithNames = async (
     {};
   if (storeId !== undefined) {
     whereClause.storeId = storeId;
-  }
-  if (crawlerId !== undefined) {
-    whereClause["$crawlers.crawler_id$"] = crawlerId;
   }
   if (categoryId !== undefined) {
     whereClause.categoryId = categoryId;
@@ -198,6 +196,7 @@ export const getRecentOrDiscountedProducts = async (): Promise<ProductResponse[]
 export const createProduct = async ({
   categoryId,
   createdAt,
+  verifiedAt,
   productBrand,
   productImage,
   productName,
@@ -211,6 +210,7 @@ export const createProduct = async ({
       defaults: {
         categoryId,
         createdAt,
+        verifiedAt,
         productBrand,
         productImage,
         productName,
@@ -238,9 +238,9 @@ export const updateProduct = async (
   productId: number,
   updateValues: {
     categoryId?: number;
+    verifiedAt?: Date;
+    productBrand?: string;
     productName?: string;
-    productSku?: string;
-    storeId?: number;
   }
 ) => {
   try {

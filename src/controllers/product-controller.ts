@@ -55,9 +55,10 @@ export const handleGetProducts = async (req: Request, res: Response) => {
     let productsResponse: ProductResponse[] = [];
     if (!storeId && !crawlerId && !categoryId && !searchTerm) {
       productsResponse = await getRecentOrDiscountedProducts();
-      productsResponse = analyzePrices(productsResponse);
+      productsResponse = analyzePrices(productsResponse, true);
     } else {
       productsResponse = await getProductsWithNames(storeId, crawlerId, categoryId, searchTerm);
+      productsResponse = analyzePrices(productsResponse, false);
     }
     res.status(200).json(productsResponse);
   } catch (error: unknown) {

@@ -1,7 +1,7 @@
 import amazonCrawler from "../services/amazon-crawler";
 import naturaCrawler from "../services/natura-crawler";
 import { Request, Response } from "express";
-import { createProduct, getProductBySKUAndStore } from "../database/product-dao";
+import { createProduct, getProductBySKUAndStore, updateProduct } from "../database/product-dao";
 import { createPriceRecord, getLatestPriceRecord } from "../database/price-record-dao";
 import { findCategoryByName, createCategory } from "../database/category-dao";
 import CrawledProduct from "../models/crawled-product";
@@ -97,7 +97,7 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
       const existingProduct = await getProductBySKUAndStore(product.Sku, storeDetected.storeId!);
       if (existingProduct && !newlyCreatedSKUs.has(product.Sku)) {
         const latestRecord = await getLatestPriceRecord(storeDetected.storeName, existingProduct.productId!);
-        if (!latestRecord || latestRecord.price != product.Price) {
+        if ((!latestRecord || latestRecord.price != product.Price) && product.Price > 0) {
           await createPriceRecord({
             productId: existingProduct.productId!,
             price: product.Price,
@@ -105,6 +105,7 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
           });
           recordsCreated++;
         }
+        await updateProduct(existingProduct.productId!, { verifiedAt: nowDate });
       } else {
         const newProduct = new Product();
         let category: Category | null = await findCategoryByName(product.CategoryName);
@@ -129,13 +130,15 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
             productId: newProductCreated.productId,
           });
 
-          await createPriceRecord({
-            productId: newProductCreated.productId,
-            price: product.Price,
-            priceTimestamp: nowDate,
-          }).then((createdPriceRecord) => {
-            if (createdPriceRecord) recordsCreated++;
-          });
+          if (product.Price > 0) {
+            await createPriceRecord({
+              productId: newProductCreated.productId,
+              price: product.Price,
+              priceTimestamp: nowDate,
+            }).then((createdPriceRecord) => {
+              if (createdPriceRecord) recordsCreated++;
+            });
+          }
         } else {
           console.error("Error creating product");
           continue;
