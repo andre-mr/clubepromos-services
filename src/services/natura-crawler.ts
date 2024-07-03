@@ -14,7 +14,7 @@ function pause(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-function mapProductAttributes(product: any, category: string): CrawledProduct {
+function mapProductAttributes(storeId: number, product: any, category: string): CrawledProduct {
   return {
     Brand: "Natura",
     CategoryName: category,
@@ -22,14 +22,14 @@ function mapProductAttributes(product: any, category: string): CrawledProduct {
     Name: product.name ?? "",
     Price: Number.parseFloat(product.price?.sales?.value || "0"),
     Sku: product.productId ?? "",
-    StoreId: 1, // Assuming '1' is the store ID for Natura
+    StoreId: storeId,
     Url: `${PRODUCT_BASE_URL}/${URLSanitizer(product.name ?? "p")}/${product.productId ?? "NATURA"}${
       CONSULTORIA ? "?consultoria=" + CONSULTORIA : ""
     }`,
   } as CrawledProduct;
 }
 
-const naturaCrawler = async (proxyEndpoint?: string): Promise<CrawledProduct[]> => {
+const naturaCrawler = async (storeId: number, proxyEndpoint?: string): Promise<CrawledProduct[]> => {
   let allProducts: CrawledProduct[] = [];
   for (const category of CATEGORIES) {
     let start = 0;
@@ -62,7 +62,7 @@ const naturaCrawler = async (proxyEndpoint?: string): Promise<CrawledProduct[]> 
 
       if (responseData.products && responseData.products.length > 0) {
         const currentProductItems = responseData.products.map((product: any) =>
-          mapProductAttributes(product, category)
+          mapProductAttributes(storeId, product, category)
         );
         categoryProducts.push(...currentProductItems);
 

@@ -12,33 +12,32 @@ interface AmazonProduct {
   categoryName: string;
   imageUrl: string;
   price: number;
-  priceDiscount: number;
 }
 
-function mapProductAttributes(product: AmazonProduct): CrawledProduct {
+function mapProductAttributes(storeId: number, product: AmazonProduct): CrawledProduct {
   return {
     Brand: product.brand,
     CategoryName: product.categoryName,
     ImageUrl: product.imageUrl,
     Name: product.name,
-    Price: product.priceDiscount <= product.price ? product.priceDiscount : product.price,
+    Price: product.price,
     Sku: product.asin,
-    StoreId: 2, // Assuming '2' is the store ID for Amazon
+    StoreId: storeId,
     Url: `https://amazon.com.br/dp/${product.asin}`,
   } as CrawledProduct;
 }
 
-const amazonCrawler = async (crawler: Crawler, proxyEndpoint?: string) => {
+const amazonCrawler = async (storeId: number, crawler: Crawler, proxyEndpoint?: string) => {
   let crawledProducts: CrawledProduct[] = [];
 
   if (crawler.url.match(/\/([A-Z0-9]{10})/)?.[1]) {
     const resultProduct = await getSingleProduct(crawler.url, proxyEndpoint);
     if (resultProduct) {
-      crawledProducts.push(mapProductAttributes(resultProduct));
+      crawledProducts.push(mapProductAttributes(storeId, resultProduct));
     }
   } else {
     const resultProducts = await getAllProducts(crawler.url, proxyEndpoint);
-    const resultCrawledProducts = resultProducts.map((product) => mapProductAttributes(product));
+    const resultCrawledProducts = resultProducts.map((product) => mapProductAttributes(storeId, product));
     crawledProducts = [...resultCrawledProducts];
   }
 
@@ -63,6 +62,8 @@ const getAllProducts = async (productUrl: string, proxyEndpoint?: string): Promi
       const asin = $(element).attr("data-asin");
       if (!asin) return;
 
+      // fs.writeFileSync("dev/element.html", $.html(element));
+
       const name = $(element).find("span.a-size-base-plus.a-color-base.a-text-normal").text().trim();
       const imageUrl =
         $(element)
@@ -78,11 +79,11 @@ const getAllProducts = async (productUrl: string, proxyEndpoint?: string): Promi
 
       let priceDiscount = price;
       const discountPriceFullText = $(element).text();
-      const discountPriceRegex = /(\d+\.\d+,\d+) com desconto Programe e Poupe/;
+      const discountPriceRegex = /R\$(\s|&nbsp;)(\d{1,3}(\.\d{3}|\d{3})*,\d{1,2}) com desconto Programe e Poupe/;
       const discountPriceMatch = discountPriceFullText.match(discountPriceRegex);
-      if (discountPriceMatch) {
-        const formattedDiscountPriceText = discountPriceMatch[1].replace(/\./g, "").replace(",", ".");
-        priceDiscount = parseFloat(formattedDiscountPriceText);
+      if (discountPriceMatch && discountPriceMatch[2]) {
+        const formattedDiscountPriceText = discountPriceMatch[2].replace(/[^\d,]/g, "").replace(",", ".");
+        priceDiscount = parseFloat(formattedDiscountPriceText) || price;
       }
 
       if (name && (price || priceDiscount)) {
@@ -92,8 +93,7 @@ const getAllProducts = async (productUrl: string, proxyEndpoint?: string): Promi
           brand: "",
           categoryName: "",
           imageUrl,
-          price,
-          priceDiscount,
+          price: priceDiscount,
         };
 
         products.push(product);

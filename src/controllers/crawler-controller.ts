@@ -78,11 +78,18 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
     switch (storeDetected.storeName) {
       case "Natura":
         console.log(`Starting crawler [Natura][${crawlerDetected.description}]...`);
-        crawledProducts = await naturaCrawler(storeDetected.proxyUse ? PROXY_ENDPOINT : undefined);
+        crawledProducts = await naturaCrawler(
+          storeDetected.storeId!,
+          storeDetected.proxyUse ? PROXY_ENDPOINT : undefined
+        );
         break;
       case "Amazon":
         console.log(`Starting crawler [Amazon][${crawlerDetected.description}]...`);
-        crawledProducts = await amazonCrawler(crawlerDetected, storeDetected.proxyUse ? PROXY_ENDPOINT : undefined);
+        crawledProducts = await amazonCrawler(
+          storeDetected.storeId!,
+          crawlerDetected,
+          storeDetected.proxyUse ? PROXY_ENDPOINT : undefined
+        );
         break;
       default:
         console.error("Store not supported");
