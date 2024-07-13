@@ -153,7 +153,7 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
       }
     }
 
-    console.log(`Crawler [${storeDetected.storeName}][${crawlerDetected.description}] finished successfully!`);
+    console.log(`Crawler [${crawlerDetected.crawlerId}][${storeDetected.storeName}][${crawlerDetected.description}] finished successfully!`);
     console.log(`${recordsCreated} price records created!`);
     console.log(`${newProducts} new products created!`);
 

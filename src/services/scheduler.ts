@@ -27,7 +27,6 @@ export const runScheduledCrawlers = async () => {
             lastStatus: true,
           },
         });
-        console.log(`Crawler ${crawler.crawlerId} finished`);
       } else {
         updateCrawler({
           crawlerId: crawler.crawlerId,
