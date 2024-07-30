@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import fs from "fs";
+// import fs from "fs";
 
 const temuScraper = async (url: string) => {
   const PROXY_URL = process.env.PROXY_URL || "";
@@ -48,7 +48,7 @@ const temuScraper = async (url: string) => {
 
     // Salvar HTML da página para inspeção manual
     const htmlContent = await page.content();
-    fs.writeFileSync(`dev/page-${Date.now().toString()}.html`, htmlContent);
+    // fs.writeFileSync(`dev/page-${Date.now().toString()}.html`, htmlContent);
 
     const result = await page.evaluate(() => {
       let title = "";
