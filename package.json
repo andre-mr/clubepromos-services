@@ -19,6 +19,7 @@
     "mysql2": "3.9.2",
     "node-cron": "3.0.3",
     "node-fetch": "2.7",
+    "puppeteer": "22.13.1",
     "sequelize": "6.37.1"
   },
   "devDependencies": {

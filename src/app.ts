@@ -5,10 +5,10 @@ dotenv.config();
 import crawlersRoute from "./routes/crawlers-route";
 import productsRoute from "./routes/products-route";
 import storesRoute from "./routes/stores-route";
-import priceHistoryRoute from "./routes/price-history-route";
 import { authMiddleware } from "./middlewares/auth-middleware";
 import cron from "node-cron";
 import { runScheduledCrawlers } from "./services/scheduler";
+import scrapersRoute from "./routes/scrapers-route";
 
 const app = express();
 const PORT = process.env.API_PORT || 3000;
@@ -19,7 +19,7 @@ app.use(authMiddleware);
 app.use("/crawlers", crawlersRoute);
 app.use("/products", productsRoute);
 app.use("/stores", storesRoute);
-app.use("/pricehistory", priceHistoryRoute);
+app.use("/scrapers", scrapersRoute);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({ message: "Route not found" });

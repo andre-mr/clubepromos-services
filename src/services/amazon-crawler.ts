@@ -143,7 +143,7 @@ const getSingleProduct = async (productUrl: string, proxyEndpoint?: string): Pro
   };
 
   const htmlContent = await getAmazonPage(productUrl);
-  // fs.writeFileSync(`dev/amazon-page-single.html`, htmlContent); //
+  // fs.writeFileSync(`dev/amazon-page-single.html`, htmlContent);
   const $ = cheerio.load(htmlContent);
 
   const asin = productUrl.match(/\/([A-Z0-9]{10})/)?.[1] || "";
@@ -154,14 +154,22 @@ const getSingleProduct = async (productUrl: string, proxyEndpoint?: string): Pro
     "";
   const categoryName = $("a.a-link-normal.a-color-tertiary").last().text().trim() || "";
 
-  const priceData = $(".a-section.aok-hidden.twister-plus-buying-options-price-data").text();
-  const parsedPriceData = JSON.parse(priceData);
+  const priceData = $(".a-section.aok-hidden.twister-plus-buying-options-price-data")?.text();
 
-  const newPriceItem = parsedPriceData.desktop_buybox_group_1.find((item: any) => item.buyingOptionType === "NEW");
-  const snsPriceItem = parsedPriceData.desktop_buybox_group_1.find((item: any) => item.buyingOptionType === "SNS");
+  let price = 0;
+  let priceDiscount = 0;
+  if (priceData) {
+    const parsedPriceData = JSON.parse(priceData);
+    const newPriceItem = parsedPriceData.desktop_buybox_group_1.find((item: any) => item.buyingOptionType === "NEW");
+    const snsPriceItem = parsedPriceData.desktop_buybox_group_1.find((item: any) => item.buyingOptionType === "SNS");
 
-  const price: number = newPriceItem ? Number(newPriceItem.priceAmount || "0") : 0;
-  const priceDiscount: number = snsPriceItem ? Number(snsPriceItem.priceAmount || "0") : 0;
+    price = newPriceItem ? Number(newPriceItem.priceAmount || "0") : 0;
+    priceDiscount = snsPriceItem ? Number(snsPriceItem.priceAmount || "0") : 0;
+  } else {
+    const priceInputValue = $("#twister-plus-price-data-price").val();
+    price = priceInputValue ? parseFloat(priceInputValue?.toString()) : 0;
+  }
+
   const imageUrl = $("#landingImage").attr("data-old-hires") || "";
 
   if (!name || !brand || !categoryName || !price || !imageUrl) {

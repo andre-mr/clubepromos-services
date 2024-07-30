@@ -7,29 +7,6 @@ import PriceRecord, { PriceRecordAttributes } from "../models/price-record";
 
 defineModelAssociations();
 
-export const getPriceRecords = async (productId: number, days: number = 7) => {
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() - days);
-
-  const whereClause: { productId: number; priceTimestamp?: object } = {
-    productId,
-    priceTimestamp: {
-      [Op.gte]: targetDate,
-    },
-  };
-
-  const history = await PriceRecord.findAll({
-    where: whereClause,
-    order: [["priceTimestamp", "DESC"]],
-  });
-
-  return history.map((record) => ({
-    productId: record.getDataValue("productId"),
-    priceTimestamp: record.getDataValue("priceTimestamp"),
-    price: record.getDataValue("price"),
-  }));
-};
-
 export const getLatestPriceRecord = async (storeName: string, productId: number) => {
   const store = await Store.findOne({ where: { storeName: storeName } });
   if (!store) {

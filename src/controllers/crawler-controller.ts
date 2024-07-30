@@ -26,6 +26,7 @@ import { createCrawlerProduct } from "../database/crawler-product-dao";
 
 export const handleRunCrawler = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   if (!id || isNaN(Number(id))) {
     return res.status(400).json({ message: "Invalid or missing crawler Id" });
   }
@@ -44,22 +45,34 @@ export const handleRunCrawler = async (req: Request, res: Response) => {
   if (isCrawlerAlreadyRunning) {
     return res.status(400).json({ message: "Crawler is not ready to run" });
   }
-  runCrawler(crawlerDetected, storeDetected).then((response) => {
-    if (response) {
-      updateCrawler({
-        crawlerId: crawlerDetected.crawlerId,
-        updateValues: {
-          lastExecution: new Date(),
-          lastPrices: crawlerDetected.lastPrices,
-          lastProducts: crawlerDetected.lastProducts,
-        },
-      });
-    }
-  });
 
-  return res
-    .status(200)
-    .json({ message: `Crawler ${crawlerDetected.crawlerId} for store ${storeDetected.storeName} started` });
+  try {
+    console.log(
+      "Running crawler on-demand:",
+      `[${crawlerDetected.crawlerId}][${storeDetected.storeName}][${crawlerDetected.description}]`
+    );
+    const crawlerResponse = await runCrawler(crawlerDetected, storeDetected);
+    if (!crawlerResponse) {
+      return res.status(500).json({ message: "Error running crawler" });
+    }
+
+    const updateResponse = await updateCrawler({
+      crawlerId: crawlerDetected.crawlerId,
+      updateValues: {
+        lastExecution: new Date(),
+        lastPrices: crawlerDetected.lastPrices,
+        lastProducts: crawlerDetected.lastProducts,
+      },
+    });
+
+    if (updateResponse === undefined) {
+      return res.status(500).json({ message: "Error updating crawler" });
+    }
+
+    return res.status(200).json(crawlerResponse);
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store) => {
@@ -153,7 +166,9 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
       }
     }
 
-    console.log(`Crawler [${crawlerDetected.crawlerId}][${storeDetected.storeName}][${crawlerDetected.description}] finished successfully!`);
+    console.log(
+      `Crawler [${crawlerDetected.crawlerId}][${storeDetected.storeName}][${crawlerDetected.description}] finished successfully!`
+    );
     console.log(`${recordsCreated} price records created!`);
     console.log(`${newProducts} new products created!`);
 
@@ -162,8 +177,8 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
     crawlerDetected.lastPrices = recordsCreated;
 
     return crawlerDetected;
-  } catch (error: unknown) {
-    console.log("Error running crawler!");
+  } catch (error) {
+    console.log("Error running crawler!", error);
     return false;
   }
 };
