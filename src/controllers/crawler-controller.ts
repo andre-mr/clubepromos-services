@@ -62,6 +62,7 @@ export const handleRunCrawler = async (req: Request, res: Response) => {
         lastExecution: new Date(),
         lastPrices: crawlerDetected.lastPrices,
         lastProducts: crawlerDetected.lastProducts,
+        lastStatus: true,
       },
     });
 
