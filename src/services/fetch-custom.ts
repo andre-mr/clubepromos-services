@@ -75,12 +75,12 @@ const fetchBasic = async ({ url, proxyEndpoint }: FetchOptions): Promise<Respons
   }
 };
 
-const fetchHtml = async ({ url, proxyEndpoint }: FetchOptions): Promise<Response | NodeFetchResponse> => {
+const fetchHtml = async ({ url, proxyEndpoint, headers }: FetchOptions): Promise<Response | NodeFetchResponse> => {
   if (proxyEndpoint) {
     console.log("fetchHtml using proxy");
   }
 
-  const headers = {
+  const defaultHeaders = {
     accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6,pt-PT;q=0.5",
@@ -110,7 +110,7 @@ const fetchHtml = async ({ url, proxyEndpoint }: FetchOptions): Promise<Response
   };
   const options = createRequestOptions({
     proxyEndpoint,
-    headers,
+    headers: headers || defaultHeaders,
     method: "GET",
     referrerPolicy: "strict-origin-when-cross-origin",
   });
