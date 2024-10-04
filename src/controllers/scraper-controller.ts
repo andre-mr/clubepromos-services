@@ -19,7 +19,7 @@ export const handleScrapStore = async (req: Request, res: Response) => {
 export const runScraper = async (storeName: string, url: string, headers?: ProxyHeaders) => {
   switch (storeName) {
     case "proxy":
-      console.log("proxyFetch");
+      console.log("proxyFetch:", url);
       const PROXY_ENDPOINT = process.env.PROXY_ENDPOINT;
       const proxyResponse = await fetchHtml({ url, proxyEndpoint: PROXY_ENDPOINT, headers });
       if (proxyResponse.ok) {

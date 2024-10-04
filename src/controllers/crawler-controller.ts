@@ -1,7 +1,7 @@
 import amazonCrawler from "../services/amazon-crawler";
 import naturaCrawler from "../services/natura-crawler";
 import { Request, Response } from "express";
-import { createProduct, getProductBySKUAndStore, updateProduct } from "../database/product-dao";
+import { createProduct, getProductBySKUAndStore, purgeProducts, updateProduct } from "../database/product-dao";
 import { createPriceRecord, getLatestPriceRecord } from "../database/price-record-dao";
 import { findCategoryByName, createCategory } from "../database/category-dao";
 import CrawledProduct from "../models/crawled-product";
@@ -176,6 +176,10 @@ export const runCrawler = async (crawlerDetected: Crawler, storeDetected?: Store
     crawlerDetected.lastExecution = new Date();
     crawlerDetected.lastProducts = newProducts;
     crawlerDetected.lastPrices = recordsCreated;
+
+    if (newProducts > 0 || recordsCreated > 0) {
+      purgeProducts(60);
+    }
 
     return crawlerDetected;
   } catch (error) {

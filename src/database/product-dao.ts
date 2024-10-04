@@ -248,7 +248,7 @@ export const updateProduct = async (
       where: { productId },
     });
     if (updatedRows === 0) {
-      console.error("Product not found or identical data provided");
+      // console.error("Product not found or identical data provided");
     }
     return updatedRows;
   } catch (error) {
@@ -271,5 +271,29 @@ export const deleteProduct = async (productId: number) => {
     if (error instanceof Error) {
       console.error(`Error deleting product: ${error.message}`);
     }
+  }
+};
+
+export const purgeProducts = async (days: number) => {
+  const daysAgo = new Date();
+  daysAgo.setDate(daysAgo.getDate() - days);
+
+  try {
+    const deletedRows = await Product.destroy({
+      where: {
+        verifiedAt: {
+          [Op.lt]: daysAgo, // older than 'days'
+        },
+      },
+    });
+    if (deletedRows > 0) {
+      console.log(`Deleted ${deletedRows} products older than 30 days.`);
+    }
+    return deletedRows;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error purging products: ${error.message}`);
+    }
+    return 0;
   }
 };
