@@ -287,7 +287,7 @@ export const purgeProducts = async (days: number) => {
       },
     });
     if (deletedRows > 0) {
-      console.log(`Deleted ${deletedRows} products older than 30 days.`);
+      console.log(`Deleted ${deletedRows} products older than ${days} days.`);
     }
     return deletedRows;
   } catch (error) {
