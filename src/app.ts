@@ -9,9 +9,17 @@ import { authMiddleware } from "./middlewares/auth-middleware";
 import cron from "node-cron";
 import { runScheduledCrawlers } from "./services/scheduler";
 import scrapersRoute from "./routes/scrapers-route";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.API_PORT || 3000;
+
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 app.use(express.json());
 app.use(authMiddleware);
