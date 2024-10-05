@@ -14,12 +14,22 @@ import cors from "cors";
 const app = express();
 const PORT = process.env.API_PORT || 3000;
 
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-  })
-);
+const allowedOrigins = process.env.CORS_ORIGIN?.split("|");
+
+if (allowedOrigins) {
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          console.error(`Not allowed by CORS: ${origin}`);
+          callback(null, false); // O segundo argumento "false" indica que a origem não é permitida
+        }
+      },
+    })
+  );
+}
 
 app.use(express.json());
 app.use(authMiddleware);
