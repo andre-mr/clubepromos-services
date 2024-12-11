@@ -64,7 +64,10 @@ const getAllProducts = async (productUrl: string, proxyEndpoint?: string): Promi
 
       // fs.writeFileSync("dev/element.html", $.html(element));
 
-      const name = $(element).find("span.a-size-base-plus.a-color-base.a-text-normal").text().trim();
+      let name = $(element).find("span.a-size-base-plus.a-color-base.a-text-normal").text().trim();
+      if (!name) {
+        name = $(element).find("h2.a-size-base-plus.a-spacing-none.a-color-base.a-text-normal > span").text().trim();
+      }
       const imageUrl =
         $(element)
           .find("img.s-image")
