@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 // import fs from "fs";
 
 const temuScraper = async (url: string) => {
@@ -6,6 +7,7 @@ const temuScraper = async (url: string) => {
   const PROXY_USERNAME = process.env.PROXY_USERNAME || "";
   const PROXY_PASSWORD = process.env.PROXY_PASSWORD || "";
 
+  puppeteer.use(StealthPlugin());
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -18,6 +20,9 @@ const temuScraper = async (url: string) => {
     ],
   });
   const [page] = await browser.pages();
+  // page.on("console", (message) => {
+  //   console.log(`Browser console log: ${message.text()}`);
+  // });
   await page.authenticate({
     username: PROXY_USERNAME,
     password: PROXY_PASSWORD,
@@ -29,7 +34,7 @@ const temuScraper = async (url: string) => {
   page.on("request", (req) => {
     const resourceType = req.resourceType();
     if (
-      // resourceType === "image" ||
+      resourceType === "image" ||
       resourceType === "font" ||
       resourceType === "stylesheet" ||
       resourceType === "script"
@@ -41,7 +46,7 @@ const temuScraper = async (url: string) => {
   });
 
   try {
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 10000 });
     await page.evaluate(() => {
       return new Promise((resolve) => setTimeout(resolve, 5000)); // Aguarda mais 5 segundos
     });
@@ -59,15 +64,21 @@ const temuScraper = async (url: string) => {
       const priceElement = document.querySelector(
         'div[class*="salePriceAmount"] span[class*="priceWrap"] > span:last-child'
       ) as HTMLSpanElement;
-      const imageElement =
-        (document.querySelector('img[src*="imageView2/2/w/800/"]') as HTMLImageElement) ||
-        (document.querySelector('img[src*="https://img.kwcdn.com/product/fancy/"]') as HTMLImageElement);
+      const imageElement = document.querySelector('img[src*="imageView2/2/w/800/"]') as HTMLImageElement;
+      (document.querySelector('img[src*="https://img.kwcdn.com/product/fancy/"]') as HTMLImageElement) ||
+        (document.querySelector('img[src*="https://img.kwcdn.com/product/open/"]') as HTMLImageElement);
+      if (!image) {
+        const ogImageMeta = document.querySelector('meta[property="og:image"]') as HTMLMetaElement;
+        if (ogImageMeta) {
+          image = ogImageMeta.content;
+        }
+      }
 
       title = titleElement ? titleElement.innerText : "";
       price = priceElement ? priceElement.innerText : "";
-      image = imageElement ? imageElement.src : "";
+      image = imageElement ? imageElement.src : image;
 
-      // Se falhar, tentar capturar do script JSON-LD com @type "Product"
+      // If fail, try to capture from script JSON-LD with @type "Product"
       if (!title || !price || !image) {
         const jsonLdElements = Array.from(
           document.querySelectorAll('script[type="application/ld+json"]')
