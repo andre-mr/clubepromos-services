@@ -51,9 +51,8 @@ const temuScraper = async (url: string) => {
       return new Promise((resolve) => setTimeout(resolve, 5000)); // Aguarda mais 5 segundos
     });
 
-    // Salvar HTML da página para inspeção manual
-    const htmlContent = await page.content();
-    // fs.writeFileSync(`dev/page-${Date.now().toString()}.html`, htmlContent);
+    // const htmlContent = await page.content();
+    // fs.writeFileSync(`dev/page-temu-${Date.now().toString()}.html`, htmlContent);
 
     const result = await page.evaluate(() => {
       let title = "";

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import temuScraper from "../services/temu-scraper";
+import centauroScraper from "../services/centauro-scraper";
 import { fetchHtml } from "../services/fetch-custom";
 import { ProxyHeaders } from "../models/proxy-headers";
 
@@ -31,6 +32,12 @@ export const runScraper = async (storeName: string, url: string, headers?: Proxy
       console.log("temuScraper");
       const temuPage = await temuScraper(url);
       return temuPage;
+
+    case "centauro":
+      console.log("centauroScraper");
+      const centauroPage = await centauroScraper(url);
+      return centauroPage;
+
     default:
       return "";
   }
