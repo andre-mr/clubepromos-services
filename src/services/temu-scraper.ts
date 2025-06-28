@@ -52,7 +52,7 @@ const temuScraper = async (url: string) => {
     });
 
     // const htmlContent = await page.content();
-    // fs.writeFileSync(`dev/page-temu-${Date.now().toString()}.html`, htmlContent);
+    // fs.writeFileSync(`dev/page-temu.html`, htmlContent);
 
     const result = await page.evaluate(() => {
       let title = "";

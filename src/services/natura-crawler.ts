@@ -3,7 +3,6 @@ import CrawledProduct from "../models/crawled-product";
 import { fetchJSON } from "./fetch-custom";
 
 const X_API_KEY = "fTo8UT5bjg9C6EIidaTEG7Zs3Syz6CzR7ADI4sL7";
-const CONSULTORIA = "pechincheiro";
 const PRODUCT_BASE_URL = "https://www.natura.com.br/p";
 const PAUSE_MIN = 1000;
 const PAUSE_MAX = 3000;
@@ -23,9 +22,7 @@ function mapProductAttributes(storeId: number, product: any, category: string): 
     Price: Number.parseFloat(product.price?.sales?.value || "0"),
     Sku: product.productId ?? "",
     StoreId: storeId,
-    Url: `${PRODUCT_BASE_URL}/${URLSanitizer(product.name ?? "p")}/${product.productId ?? "NATURA"}${
-      CONSULTORIA ? "?consultoria=" + CONSULTORIA : ""
-    }`,
+    Url: `${PRODUCT_BASE_URL}/${URLSanitizer(product.name ?? "p")}/${product.productId ?? "NATURA"}`,
   } as CrawledProduct;
 }
 

@@ -29,7 +29,7 @@ const centauroScraper = async (url: string) => {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
 
     // const htmlContent = await page.content();
-    // fs.writeFileSync(`dev/page-centauro-${Date.now().toString()}.html`, htmlContent);
+    // fs.writeFileSync(`dev/page-centauro.html`, htmlContent);
 
     const result = await page.evaluate(() => {
       const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
